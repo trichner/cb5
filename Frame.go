@@ -1,7 +1,8 @@
 package cb5
 
 import (
-	"errors"
+	"bytes"
+	"encoding/binary"
 )
 
 const BIT_OFFSET = 7
@@ -28,34 +29,32 @@ func NewFrame() *Frame {
 }
 
 // Set sets an LED on or off
-func (f *Frame) Set(x uint8, y uint8, z uint8, on bool) error {
+func (f *Frame) Set(x uint8, y uint8, z uint8, on bool) {
 	if !inRanges(x, y, z) {
-		return errors.New("out of bounds")
+		panic("out of bounds")
 	}
 	plane := f.cube[z]
 	shift := (SIDE*y + x + BIT_OFFSET)
 	plane &= ^(0x01 << shift)
 	plane |= (btoi(on) << shift)
 	f.cube[z] = plane
-	return nil
-
 }
 
 // Get retrieves the state of an LED, error if out of bounds
-func (f *Frame) Get(x uint8, y uint8, z uint8) (bool, error) {
+func (f *Frame) Get(x uint8, y uint8, z uint8) bool {
 	if !inRanges(x, y, z) {
-		return false, errors.New("out of bounds")
+		panic("out of bounds")
 	}
 	plane := f.cube[z]
 	bit := (plane >> (SIDE*y + x + BIT_OFFSET)) != 0
-	return bit, nil
+	return bit
 }
 
 // SetBrightness sets the brightness, values between [0,5] where 0 is off and 5 is the maximum
 // error if out of bounds
-func (f *Frame) SetBrightness(b uint8) error {
+func (f *Frame) SetBrightness(b uint8) {
 	if !validBrightness(b) {
-		return errors.New("out of bounds")
+		panic("out of bounds")
 	}
 	plane := f.cube[BRIGHTNESS_Z]
 	plane &= ^uint32(BRIGHTNESS_MASK)
@@ -64,7 +63,6 @@ func (f *Frame) SetBrightness(b uint8) error {
 		plane |= (0x01 << shift)
 	}
 	f.cube[BRIGHTNESS_Z] = plane
-	return nil
 }
 
 // GetBrightness gets the brightness, values between [0,5] where 0 is off and 5 is the maximum
@@ -98,6 +96,14 @@ func (f *Frame) SetEnd(s bool) {
 
 func (f *Frame) IsEnd() bool {
 	return isBit(END_OFFSET, f.cube[END_Z])
+}
+
+func (f *Frame) Bytes() []byte {
+	buf := new(bytes.Buffer)
+	for z := 0; z < 4; z++ {
+		binary.Write(buf, binary.BigEndian, f.cube[z])
+	}
+	return buf.Bytes()
 }
 
 //==== Helpers

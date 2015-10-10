@@ -13,7 +13,7 @@ func TestNewFrame(t *testing.T) {
 	for x := uint8(0); x < 5; x++ {
 		for y := uint8(0); y < 5; y++ {
 			for z := uint8(0); z < 5; z++ {
-				bit, _ := f.Get(x, y, z)
+				bit := f.Get(x, y, z)
 				assert.False(t, bit, "Initialization not correct")
 			}
 		}
@@ -24,14 +24,18 @@ func TestFrameOOB(t *testing.T) {
 
 	f := NewFrame()
 
-	_, err := f.Get(0, 0, 42)
-	assert.Error(t, err, "Should have returned an Out Of Bounds error :/")
+	assert.Panics(t, func() {
+		f.Get(0, 0, 42)
+	}, "Should have panicked :/")
 
-	_, err = f.Get(7, 0, 0)
-	assert.Error(t, err, "Should have returned an Out Of Bounds error :/")
+	assert.Panics(t, func() {
+		f.Get(7, 0, 0)
+	}, "Should have panicked :/")
 
-	_, err = f.Get(0, 8, 0)
-	assert.Error(t, err, "Should have returned an Out Of Bounds error :/")
+	assert.Panics(t, func() {
+		f.Get(0, 8, 0)
+	}, "Should have panicked :/")
+
 }
 
 func TestFrameGetSet(t *testing.T) {
@@ -39,10 +43,10 @@ func TestFrameGetSet(t *testing.T) {
 	f := NewFrame()
 
 	f.Set(0, 0, 0, true)
-	bit, _ := f.Get(0, 0, 0)
+	bit := f.Get(0, 0, 0)
 	assert.True(t, bit, "False negative")
 
-	bit, _ = f.Get(0, 0, 1)
+	bit = f.Get(0, 0, 1)
 	assert.False(t, bit, "False positive")
 }
 
