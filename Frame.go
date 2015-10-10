@@ -3,6 +3,7 @@ package cb5
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
 const BIT_OFFSET = 7
@@ -104,6 +105,14 @@ func (f *Frame) Bytes() []byte {
 		binary.Write(buf, binary.BigEndian, f.cube[z])
 	}
 	return buf.Bytes()
+}
+
+func (f *Frame) String() string {
+	var buf bytes.Buffer
+	for _, p := range f.cube {
+		buf.WriteString(fmt.Sprintf("%032b\n", p))
+	}
+	return buf.String()
 }
 
 //==== Helpers

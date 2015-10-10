@@ -1,6 +1,7 @@
 package cb5
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -36,6 +37,24 @@ func TestFrameOOB(t *testing.T) {
 		f.Get(0, 8, 0)
 	}, "Should have panicked :/")
 
+}
+
+func TestString(t *testing.T) {
+
+	f := NewFrame()
+
+	f.SetSceneStart(true)
+	for x := uint8(0); x < 5; x += 1 {
+		for y := uint8(0); y < 5; y += 1 {
+			for z := uint8(0); z < 5; z += 1 {
+				f.Set(x, y, z, true)
+			}
+		}
+	}
+	f.SetSceneEnd(true)
+	f.SetEnd(true)
+	f.SetBrightness(0)
+	fmt.Print(f.String())
 }
 
 func TestFrameGetSet(t *testing.T) {

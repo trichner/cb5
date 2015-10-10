@@ -2,6 +2,7 @@ package cb5
 
 import (
 	"bytes"
+	//"fmt"
 )
 
 type Animation struct {
@@ -10,13 +11,23 @@ type Animation struct {
 
 func NewAnimation() *Animation {
 	return &Animation{
-		frames: make([]Frame, 50),
+		frames: make([]Frame, 0, 50), // should maybe use pointers to save memory (premature optimization)
 	}
 }
 
-// Set sets an LED on or off
 func (a *Animation) Append(f Frame) {
 	a.frames = append(a.frames, f)
+}
+
+func (a *Animation) Len() uint32 {
+	return uint32(len(a.frames))
+}
+
+func (a *Animation) Get(i uint32) *Frame {
+	if i >= a.Len() {
+		panic("out of bounds")
+	}
+	return &a.frames[i]
 }
 
 func (a *Animation) Bytes() []byte {
